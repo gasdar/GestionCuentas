@@ -1,5 +1,9 @@
 package informes;
 
+import helpers.ReportFormats;
+
+import javax.swing.*;
+
 public class CasaLuz {
 
     /*
@@ -35,12 +39,28 @@ public class CasaLuz {
         6. Total Casa = porcentaje compartido + porcentaje de consumo.
         7. MONTO DE CUENTA = Total Consulta + Total Aura + Total Casa.
 
+        Ejemplo de obtención del MONTO COMPARTIDO:
         5490 = 1647 + 1372.5 + 2470.5
+
     */
 
     public static void main(String[] args) {
 
-        int montoCancelado
+        int montoCancelado, montoCuenta, montoConsumo, montoCompartido, kWhConsumidos;
+        float kWhValor;
+        ReportFormats.informReportProcess("LUZ");
+
+        montoCancelado = ReportFormats.getIntUpperThanZero("Ingrese el último monto cancelado");
+        montoCuenta = ReportFormats.getIntUpperThanZero("Ingrese el monto actual");
+        montoConsumo = ReportFormats.getIntUpperThanZero("Ingrese el monto de electricidad consumida");
+        kWhConsumidos = ReportFormats.getIntUpperThanZero("Ingrese el monto de kWh consumidos");
+
+        // OBTENER kWh consulta
+        kWhValor = (float) montoConsumo / kWhConsumidos;
+        montoCompartido = montoCuenta - montoConsumo;
+
+        ReportFormats.informReportProcess(Float.toString(kWhValor));
+        ReportFormats.informReportProcess(Integer.toString(montoCompartido));
 
     }
 
