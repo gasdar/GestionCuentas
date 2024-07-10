@@ -18,11 +18,11 @@ public class CasaAgua {
         int montoCancelado, montoActual, cuotaCuenta;
         StringBuilder sb = new StringBuilder();
         String resultado;
-        ReportFormats.informReportProcess("AGUA");
+        ReportFormats.reportAbout("AGUA");
 
         montoCancelado = ReportFormats.getIntUpperThanZero("Ingrese el último monto cancelado");
         montoActual = ReportFormats.getIntUpperThanZero("Ingrese el monto actual a cancelar");
-        cuotaCuenta = ReportFormats.roundFormat(montoActual / 7.0f);
+        cuotaCuenta = ReportFormats.roundedFormat(montoActual / 7.0f);
 
         sb.append("Último monto cancelado => ").append(ReportFormats.reportNumberFormat(montoCancelado));
         sb.append("\nMonto actual a cancelar => ").append(ReportFormats.reportNumberFormat(montoActual));
