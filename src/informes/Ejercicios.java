@@ -12,6 +12,16 @@ public class Ejercicios {
         System.out.println(roundIntValue1(124.5f));
         System.out.println("***********************************");
         System.out.println(roundFloatValue2(243.4f));
+        System.out.println("***********************************");
+        System.out.println("(0 % 3 == 0) = " + (0 % 3 == 0));
+        System.out.println("(3 % 3 == 0) = " + (3 % 3 == 0));
+        System.out.println("(6 % 3 == 0) = " + (6 % 3 == 0));
+        System.out.println("(9 % 3 == 0) = " + (9 % 3 == 0));
+        System.out.println("(1 % 3 == 0) = " + (1 % 3 == 0));
+        System.out.println("(1 % 3) = " + (1 % 3));
+        System.out.println("(5 % 3 == 0) = " + (5 % 3 == 0));
+        System.out.println("(5 % 3) = " + (5 % 3));
+
 
     }
 

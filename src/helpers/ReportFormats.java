@@ -26,14 +26,18 @@ public class ReportFormats {
         }
     }
 
-    public static int roundFormat(float num) {
+    public static int roundedFormat(float num) {
         // redondeamos el decimal y volvemos el puntero
-        float decimalValue = roundFormatHelper(num * 10) / 10;
+        float decimalValue = roundedFormatHelper(num * 10) / 10;
         // redondeamos el último número
-        return (int) roundFormatHelper(decimalValue);
+        return (int) roundedFormatHelper(decimalValue);
     }
 
-    private static float roundFormatHelper(float num) {
+    public static int roundedDecimalFormat(float num) {
+        return (int) (roundedFormatHelper(num * 10) / 10);
+    }
+
+    private static float roundedFormatHelper(float num) {
         String sNum = Float.toString(num); // 2434.0 => a String
         sNum = sNum.substring(0, sNum.indexOf('.')); // "2434.0" => "2434"
         int finalNum = Integer.parseInt(sNum.substring(sNum.length()-1)); // "2434" => 4
@@ -49,9 +53,8 @@ public class ReportFormats {
         StringBuilder sb = new StringBuilder();
         for(int i=sNum.length()-1; i>=0; i--) {
             counter++;
-            if(counter == 3) {
+            if(counter%3 == 0 && i-1 >= 0) {
                 sb.append(sNum.charAt(i)).append(".");
-                counter = 0;
             } else {
                 sb.append(sNum.charAt(i));
             }
@@ -65,11 +68,20 @@ public class ReportFormats {
         return sb.toString();
     }
 
-    public static void informReportProcess(String name) {
+    public static void reportAbout(String name) {
         JOptionPane.showMessageDialog(null,
                 "Ingrese los datos solicitados para obtener\nel informe de " + name.toLowerCase(),
                 "INFORME DE CUENTA DE " + name.toUpperCase(),
                 JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public static void informationMessage(String t, String m, int option) {
+        switch (option) {
+            case 0 -> JOptionPane.showMessageDialog(null, m, t, JOptionPane.ERROR_MESSAGE);
+            case 1 -> JOptionPane.showMessageDialog(null, m, t, JOptionPane.INFORMATION_MESSAGE);
+            case 2 -> JOptionPane.showMessageDialog(null, m, t, JOptionPane.WARNING_MESSAGE);
+            default -> JOptionPane.showMessageDialog(null, m, t, JOptionPane.PLAIN_MESSAGE);
+        }
     }
 
 }

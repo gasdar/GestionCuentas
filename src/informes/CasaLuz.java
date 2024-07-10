@@ -21,11 +21,11 @@ public class CasaLuz {
         Consulta 45%, Aura 25%, Casa 30%.
 
         MONTO DE CONSUMO: Es el monto de consumo de electricidad de la cuenta y
-        deben ser calculados de la siguiente forma: Consulta (cancela por kWh),
-        Aura ((monto de consumo - porcentaje consulta) * 25%) y Casa (monto de
-        consumo - porcentaje consulta - porcentaje aura).
+        deben ser calculados de la siguiente forma: Consulta (cancela por kWh,
+        kWhValor * kWhConsumidos), Aura ((monto de consumo - porcentaje consulta) * 25%)
+        y Casa (monto de consumo - porcentaje consulta - porcentaje aura).
 
-        MONTO DE CUENTA: Es el monto total que se debe de cancelar que, equivale
+        MONTO DE CUENTA: Es el monto total que se debe de cancelar y este equivale
         a: monto compartido + monto de consumo.
 
         Otras consideraciones y cálculos a tener en cuenta para generar el
@@ -46,22 +46,92 @@ public class CasaLuz {
 
     public static void main(String[] args) {
 
-        int montoCancelado, montoCuenta, montoConsumo, montoCompartido, kWhConsumidos;
-        float kWhValor;
-        ReportFormats.informReportProcess("LUZ");
+        int montoCancelado, montoCuenta, montoConsumo, montoCompartido, kwhTotalConsumidos;
+        int kwhConsultaConsumidos, kwhValor;
+        StringBuilder sb = new StringBuilder();
+        String resultado;
 
+        // ERROR ALGORÍTMICO
+        ReportFormats.informationMessage("EJEMPLO", "(ReportFormats.reportNumberFormat(1200000)) = " + (ReportFormats.reportNumberFormat(1200000)), 2);
+        ReportFormats.informationMessage("EJEMPLO", "(ReportFormats.reportNumberFormat(12000)) = " + (ReportFormats.reportNumberFormat(12000)), 2);
+        ReportFormats.informationMessage("EJEMPLO", "(ReportFormats.reportNumberFormat(1200)) = " + (ReportFormats.reportNumberFormat(1200)), 2);
+
+        ReportFormats.reportAbout("LUZ");
         montoCancelado = ReportFormats.getIntUpperThanZero("Ingrese el último monto cancelado");
         montoCuenta = ReportFormats.getIntUpperThanZero("Ingrese el monto actual");
         montoConsumo = ReportFormats.getIntUpperThanZero("Ingrese el monto de electricidad consumida");
-        kWhConsumidos = ReportFormats.getIntUpperThanZero("Ingrese el monto de kWh consumidos");
+        kwhTotalConsumidos = ReportFormats.getIntUpperThanZero("Ingrese el monto de kWh consumidos");
 
-        // OBTENER kWh consulta
-        kWhValor = (float) montoConsumo / kWhConsumidos;
+        // Calcular porcentajes de MONTO COMPARTIDO
+        int compartidoConsulta, compartidoAura, compartidoCasa, compartidoTotal;
+
         montoCompartido = montoCuenta - montoConsumo;
+        compartidoConsulta = ReportFormats.roundedDecimalFormat(montoCompartido * 0.45f);
+        compartidoAura = ReportFormats.roundedDecimalFormat(montoCompartido * 0.25f);
+        compartidoCasa = ReportFormats.roundedDecimalFormat(montoCompartido * 0.3f);
+        compartidoTotal = compartidoConsulta + compartidoAura + compartidoCasa;
 
-        ReportFormats.informReportProcess(Float.toString(kWhValor));
-        ReportFormats.informReportProcess(Integer.toString(montoCompartido));
+        // Calcular porcentajes de MONTO DE CONSUMO
+        int consumoConsulta, consumoAura, consumoCasa, consumoTotal;
+        // Obtener kWh consulta
+        kwhConsultaConsumidos = consultationKwh();
+        kwhValor = ReportFormats.roundedDecimalFormat((float) montoConsumo / kwhTotalConsumidos);
 
+        consumoConsulta = kwhConsultaConsumidos * kwhValor;
+        consumoAura = ReportFormats.roundedDecimalFormat((montoConsumo - consumoConsulta) * 0.25f);
+        consumoCasa = montoConsumo - consumoConsulta - consumoAura;
+        consumoTotal = consumoConsulta+consumoAura+consumoCasa;
+
+        // Calcular los totales finales
+        int totalConsulta, totalAura, totalCasa, totalFinal;
+        totalConsulta = compartidoConsulta + consumoConsulta;
+        totalAura = compartidoAura + consumoAura;
+        totalCasa = compartidoCasa + consumoCasa;
+        totalFinal = totalConsulta+totalAura+totalCasa;
+
+        sb.append("Último Monto de Cuenta: ").append(ReportFormats.reportNumberFormat(montoCancelado));
+        // MIS PRUEBAS UNITARIAS DE LA IGUALDAD DE LOS MONTOS
+        sb.append("\n--------------------------------------------------");/*
+        sb.append("\n(montoCompartido == compartidoTotal) = ").append(montoCompartido == compartidoTotal);
+        sb.append("\n(montoConsumo == consumoTotal) = ").append(montoConsumo == consumoTotal);
+        sb.append("\n(montoCuenta == totalFinal) = ").append(montoCuenta == totalFinal);
+        sb.append("\n--------------------------------------------------");*/
+        sb.append("\nActual Monto de Cuenta: ").append(ReportFormats.reportNumberFormat(montoCuenta));
+        sb.append("\nMonto de Consumo: ").append(ReportFormats.reportNumberFormat(montoConsumo));
+        sb.append("\nMonto Compartido: ").append(ReportFormats.reportNumberFormat(montoCompartido));
+        sb.append("\nkWh Consumidos: ").append(ReportFormats.reportNumberFormat(kwhTotalConsumidos));
+        sb.append("\nkWh Valor: ").append(ReportFormats.reportNumberFormat(kwhValor));
+        sb.append("\n--------------------------------------------------");
+        sb.append("\nConsulta (Consumo & Compartido): ").append(ReportFormats.reportNumberFormat(consumoConsulta)).append(" + ");
+        sb.append(ReportFormats.reportNumberFormat(compartidoConsulta)).append(" => ").append(ReportFormats.reportNumberFormat(totalConsulta));
+        sb.append("\nAura (Consumo & Compartido): ").append(ReportFormats.reportNumberFormat(consumoAura)).append(" + ");
+        sb.append(ReportFormats.reportNumberFormat(compartidoAura)).append(" => ").append(ReportFormats.reportNumberFormat(totalAura));
+        sb.append("\nCasa (Consumo & Compartido): ").append(ReportFormats.reportNumberFormat(consumoCasa)).append(" + ");
+        sb.append(ReportFormats.reportNumberFormat(compartidoCasa)).append(" => ").append(ReportFormats.reportNumberFormat(totalCasa));
+        sb.append("\n--------------------------------------------------");
+        sb.append("\nTotal Final (Consulta & Aura & Casa): ").append(ReportFormats.reportNumberFormat(totalConsulta)).append(" + ");
+        sb.append(ReportFormats.reportNumberFormat(totalAura)).append(" + ").append(ReportFormats.reportNumberFormat(totalCasa));
+        sb.append(" => ").append(ReportFormats.reportNumberFormat(totalFinal));
+
+        resultado = sb.toString();
+        JOptionPane.showMessageDialog(null,
+                resultado,
+                "INFORME DE CUENTA DE LUZ",
+                JOptionPane.INFORMATION_MESSAGE);
+
+    }
+
+    private static int consultationKwh() {
+        ReportFormats.informationMessage("CONSULTA KWH", "Debe ingresar los kWh consumidos de la consulta dental", 1);
+        int ultimaMarcaKwh, actualMarcaKwh;
+        do {
+            ultimaMarcaKwh = ReportFormats.getIntUpperThanZero("Ingrese la última marca de kWh de la consulta");
+            actualMarcaKwh = ReportFormats.getIntUpperThanZero("Ingrese la actual marca de kWh de la consulta");
+            if (ultimaMarcaKwh > actualMarcaKwh) {
+                ReportFormats.informationMessage("KWH INGRESADOS INVÁLIDOS", "La última marca de kWh, no puede ser mayor a la actual", 2);
+            }
+        } while (ultimaMarcaKwh > actualMarcaKwh);
+        return actualMarcaKwh - ultimaMarcaKwh;
     }
 
 }
